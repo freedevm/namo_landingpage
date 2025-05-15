@@ -13,8 +13,8 @@ const HomePage = () => {
    <div className="relative">
   {/* Background image */}
   <div
-    className="absolute inset-0 bg-cover bg-no-repeat bg-center z-0"
-    style={{ backgroundImage: "url('./assets/bg.jpg')" }}
+    className="absolute inset-0 bg-cover bg-no-repeat bg-center z-0 bg-gradient-to-b from-[#FF9933] via-[#FFFFFF] to-[#76e76c] min-h-screen m-0"
+    
   />
   {/* Overlay */}
   {/* <div className="absolute inset-0 bg-black opacity-50 z-0" /> */}

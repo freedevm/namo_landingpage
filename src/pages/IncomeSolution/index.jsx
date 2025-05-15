@@ -74,11 +74,11 @@ const IncomeSolution = () => {
 
       {/* Image Section */}
       <div className="relative w-full">
-        <img
+        {/* <img
           src="./assets/blur-ai.webp"
           alt="blur-solution"
           className="absolute w-full h-full -top-[200px] z-[1]"
-        />
+        /> */}
         <img
           src="./assets/income-solution.webp"
           alt="income-solution-new"

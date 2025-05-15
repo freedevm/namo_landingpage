@@ -107,10 +107,10 @@ const Tokenomics = () => {
                 <img src="./assets/check-icon.svg" alt="icon-check" className="mr-3" />
                 <span className="text-brand font-medium text-[#1ed760]">2.5% tax</span>
               </div>
-              <div className="flex items-center justify-center bg-[rgba(30,215,96,0.15)] bg-opacity-50 h-10 w-full md:w-1/2 rounded px-3 mt-4 md:mt-0">
+              {/* <div className="flex items-center justify-center bg-[rgba(30,215,96,0.15)] bg-opacity-50 h-10 w-full md:w-1/2 rounded px-3 mt-4 md:mt-0">
                 <img src="./assets/check-icon.svg" alt="icon-check" className="mr-3" />
                 <span className="text-brand font-medium text-[#1ed760]">No team token</span>
-              </div>
+              </div> */}
             </div>
           </div>
 
