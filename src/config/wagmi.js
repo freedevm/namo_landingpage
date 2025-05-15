@@ -1,65 +1,45 @@
-// config/wagmi.js
-import { createConfig, http } from 'wagmi';
-import { defineChain } from 'viem';
-import { injected } from 'wagmi/connectors';
+import { http } from 'wagmi';
+import { mainnet, bsc, bscTestnet } from 'wagmi/chains';
+import { createConfig } from 'wagmi';
 
-// Define BNB Chain (Mainnet)
-const bnbChain = defineChain({
+// Define custom BNB Mainnet and Testnet with Alchemy RPC URLs
+const bnbMainnet = {
+  ...bsc,
   id: 56,
-  name: 'BNB Smart Chain',
-  network: 'bsc',
+  name: 'BNB Smart Chain Mainnet',
   nativeCurrency: {
-    decimals: 18,
     name: 'BNB',
     symbol: 'BNB',
+    decimals: 18,
   },
   rpcUrls: {
     default: {
-      http: ['https://bsc-dataseed.binance.org/'],
-    },
-    public: {
-      http: ['https://bsc-dataseed.binance.org/'],
+      http: ['https://bnb-mainnet.g.alchemy.com/v2/VvvXuTxKhe0crIcgxiUSc2Bvf9NcT4bT'],
     },
   },
-  blockExplorers: {
-    default: { name: 'BscScan', url: 'https://bscscan.com' },
-  },
-  testnet: false,
-});
+};
 
-// Define BNB Testnet
-const bnbTestnet = defineChain({
+const bnbTestnet = {
+  ...bscTestnet,
   id: 97,
-  name: 'BNB Testnet',
-  network: 'bsc-testnet',
+  name: 'BNB Smart Chain Testnet',
   nativeCurrency: {
-    decimals: 18,
     name: 'BNB',
     symbol: 'tBNB',
+    decimals: 18,
   },
   rpcUrls: {
     default: {
-      http: ['https://data-seed-prebsc-1-s1.binance.org:8545/'],
-    },
-    public: {
-      http: ['https://data-seed-prebsc-1-s1.binance.org:8545/'],
+      http: ['https://bnb-testnet.g.alchemy.com/v2/VvvXuTxKhe0crIcgxiUSc2Bvf9NcT4bT'],
     },
   },
-  blockExplorers: {
-    default: { name: 'BscScan Testnet', url: 'https://testnet.bscscan.com' },
-  },
-  testnet: true,
-});
+};
 
+// Configure wagmi with the custom chains
 export const config = createConfig({
-  chains: [bnbChain, bnbTestnet],
-  connectors: [
-    injected(), // Supports MetaMask and other injected wallets
-    // Add other connectors like WalletConnect if needed
-    // walletConnect({ projectId: 'YOUR_WALLETCONNECT_PROJECT_ID' }),
-  ],
+  chains: [bnbMainnet, bnbTestnet],
   transports: {
-    [bnbChain.id]: http(),
+    [bnbMainnet.id]: http(),
     [bnbTestnet.id]: http(),
   },
 });

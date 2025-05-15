@@ -1,7 +1,10 @@
-// WalletConnect.jsx
 import { useEffect } from 'react';
 import { useAccount, useConnect, useDisconnect, useBalance, useSwitchChain } from 'wagmi';
 import { injected } from 'wagmi/connectors';
+import { toast } from 'react-toastify';
+
+// Preferred network based on environment (Testnet for development, Mainnet for production)
+const PREFERRED_CHAIN_ID = process.env.NODE_ENV === 'production' ? 56 : 97; // 56 for Mainnet, 97 for Testnet
 
 const WalletConnect = ({ active, setActive }) => {
   const { address, isConnected, chain } = useAccount();
@@ -15,14 +18,29 @@ const WalletConnect = ({ active, setActive }) => {
     enabled: !!address,
   });
 
-  // Update active state and switch to BNB Testnet on connect
+  // Update active state and handle network switching
   useEffect(() => {
     setActive(isConnected);
-    if (isConnected && chain?.id !== 97) { // Chain ID 97 for BNB Testnet
-      try {
-        switchChain({ chainId: 97 });
-      } catch (err) {
-        console.error('Failed to switch chain:', err);
+
+    if (isConnected && chain) {
+      if (chain.id !== 56 && chain.id !== 97) {
+        // Unsupported network
+        toast.error(`Unsupported network (${chain.name}). Please switch to BNB Mainnet or Testnet.`, {
+          toastId: 'unsupported-network',
+        });
+      } else if (chain.id !== PREFERRED_CHAIN_ID) {
+        // Notify user of network change and attempt to switch to preferred network
+        toast.warn(`Network changed to ${chain.name}. Switching to ${PREFERRED_CHAIN_ID === 56 ? 'BNB Mainnet' : 'BNB Testnet'}.`, {
+          toastId: 'network-changed',
+        });
+        try {
+          switchChain({ chainId: PREFERRED_CHAIN_ID });
+        } catch (err) {
+          console.error('Failed to switch chain:', err);
+          toast.error('Failed to switch network. Please switch manually.', {
+            toastId: 'switch-failed',
+          });
+        }
       }
     }
   }, [isConnected, chain, setActive, switchChain]);
@@ -31,22 +49,32 @@ const WalletConnect = ({ active, setActive }) => {
   useEffect(() => {
     if (error) {
       console.error('Connection error:', error);
-      alert('Failed to connect wallet: ' + error.message);
+      toast.error('Failed to connect wallet: ' + error.message, {
+        toastId: 'connect-error',
+      });
     }
   }, [error]);
 
   const handleConnect = () => {
     if (!window.ethereum) {
-      alert('Please install MetaMask!');
+      toast.error('Please install MetaMask!', {
+        toastId: 'no-metamask',
+      });
       return;
     }
     if (isConnected) {
       disconnect();
+      toast.info('Wallet disconnected.', {
+        toastId: 'disconnected',
+      });
     } else {
       try {
         connect({ connector: injected() });
       } catch (err) {
         console.error('Connection failed:', err);
+        toast.error('Connection failed: ' + err.message, {
+          toastId: 'connect-failed',
+        });
       }
     }
   };
@@ -59,7 +87,7 @@ const WalletConnect = ({ active, setActive }) => {
       {isConnected
         ? `Connected: ${address?.slice(0, 6)}...${address?.slice(-4)} (${
             balance?.formatted.slice(0, 6) || '0'
-          } ${chain?.testnet ? 'tBNB' : 'BNB'})`
+          } ${chain?.id === 97 ? 'tBNB' : 'BNB'})`
         : 'Connect Wallet'}
     </button>
   );

@@ -1,135 +1,321 @@
-import { useState,useEffect,useRef } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { Input } from "../components/ui/input";
-import { ChevronDown, Repeat } from "lucide-react";
-import { SiBinance,SiTether,SiEthereum } from 'react-icons/si';
-export default function SwapComponent({active}) {
-const dropdownRef = useRef(null);
+import { Repeat } from "lucide-react";
+import { SiBinance, SiTether } from "react-icons/si";
+import * as ethers from "ethers";
+import { useAccount } from 'wagmi';
+import { toast } from 'react-toastify';
+
+// NAMOCoin ABI (simplified for relevant functions)
+const NAMOCOIN_ABI = [
+  "function mintWithBNB() external payable nonReentrant",
+  "function mintWithUSDT(uint256 tokenAmount) external nonReentrant",
+  "function mintWithBUSD(uint256 tokenAmount) external nonReentrant",
+  "function tokenPrice() external view returns (uint256)",
+  "function usdtToken() external view returns (address)",
+  "function busdToken() external view returns (address)",
+  "function balanceOf(address account) external view returns (uint256)",
+  "event TokensMinted(address indexed buyer, uint256 amount, address paymentToken, uint256 paymentAmount)",
+];
+
+// ERC20 ABI for approve function
+const ERC20_ABI = [
+  "function approve(address spender, uint256 amount) external returns (bool)",
+  "function allowance(address owner, address spender) external view returns (uint256)",
+  "function decimals() external view returns (uint8)",
+];
+
+// Contract address on BSC Testnet
+const NAMOCOIN_ADDRESS = "0xEf319A5c5D7D35467B4EA972998930f5D3b04F24";
+
+// NAMO price in USD
+const NAMO_PRICE_USD = 0.0012;
+
+export default function BuyNAMO({ active: initialActive }) {
   const [amountBNB, setAmountBNB] = useState(0);
-  const [amountNamo, setamountNamo] = useState(0);
+  const [amountNamo, setAmountNamo] = useState(0);
   const [crypto, setCrypto] = useState({
     name: "BNB",
-    icon: SiBinance
-  })
+    icon: SiBinance,
+  });
   const [price, setPrice] = useState(0);
-  const [isOpen, setIsOpen] = useState(false);
-  let totalPrice = 0;
-  const getTotalPrice = (tokenAmount) =>{
-      totalPrice = tokenAmount * 0.12;
-      setPrice(totalPrice);
-      setamountNamo(tokenAmount);
-  }
+  const [active, setActive] = useState(initialActive);
+  const [loading, setLoading] = useState(false);
+  const [signer, setSigner] = useState(null);
+  const [contract, setContract] = useState(null);
+  const [tokenPrice, setTokenPrice] = useState(0);
+  const [bnbUsdPrice, setBnbUsdPrice] = useState(null); // Store BNB/USD price
+
+  const { chain } = useAccount();
+
+  // Fetch BNB/USD price from CoinGecko API
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
+    const fetchBnbPrice = async () => {
+      try {
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd');
+        const data = await response.json();
+        const price = data.binancecoin.usd;
+        console.log("BNB/USD price:", price);
+        setBnbUsdPrice(price);
+      } catch (error) {
+        console.error("Failed to fetch BNB/USD price:", error);
+        toast.error("Failed to fetch BNB price. Using default value.", {
+          toastId: 'bnb-price-fetch-failed',
+        });
+        setBnbUsdPrice(600); // Default BNB/USD price if API fails (adjust as needed)
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+
+    fetchBnbPrice();
+    const interval = setInterval(fetchBnbPrice, 300000); // Update every 5 minutes
+    return () => clearInterval(interval);
   }, []);
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
+
+  // Initialize provider and contract on mount
+  useEffect(() => {
+    const init = async () => {
+      if (window.ethereum) {
+        try {
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
+          const signer = provider.getSigner();
+          const contract = new ethers.Contract(NAMOCOIN_ADDRESS, NAMOCOIN_ABI, signer);
+          setSigner(signer);
+          setContract(contract);
+          setActive(true); // Set active if wallet is connected
+          
+          // Fetch token price
+          const price = await contract.tokenPrice();
+          setTokenPrice(price);
+        } catch (error) {
+          console.error("Failed to initialize:", error);
+          setActive(false);
+        }
+      } else {
+        console.warn("MetaMask not detected.");
+      }
+    };
+    init();
+  }, []);
+
+  // Handle wallet connection
+  const connectWallet = async () => {
+    if (window.ethereum) {
+      try {
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(NAMOCOIN_ADDRESS, NAMOCOIN_ABI, signer);
+        setSigner(signer);
+        setContract(contract);
+        setActive(true);
+
+        // Fetch token price on connect
+        const price = await contract.tokenPrice();
+        setTokenPrice(price);
+      } catch (error) {
+        console.error("Wallet connection failed:", error);
+        toast.error("Failed to connect wallet: " + error.message, {
+          toastId: 'connect-error-buy',
+        });
+      }
+    } else {
+      toast.error("Please install MetaMask to use this DApp.", {
+        toastId: 'no-metamask-buy',
+      });
+    }
   };
+
+  // Handle cryptocurrency selection
+  const handleCryptoSelect = (e) => {
+    const selected = e.target.value;
+    const iconMap = {
+      BNB: SiBinance,
+      USDT: SiTether,
+      BUSD: SiBinance,
+    };
+    setCrypto({ name: selected, icon: iconMap[selected] });
+    // No need to recalculate price here; it will update with amountNamo change
+  };
+
+  // Calculate total price based on NAMO amount and selected cryptocurrency
+  const getTotalPrice = (tokenAmount) => {
+    const numAmount = parseFloat(tokenAmount) || 0;
+    if (numAmount > 0) {
+      if (crypto.name === "BNB" && bnbUsdPrice) {
+        const totalUsd = numAmount * NAMO_PRICE_USD;
+        const bnbAmount = totalUsd / bnbUsdPrice;
+        setAmountNamo(numAmount);
+        setPrice(bnbAmount.toFixed(6)); // BNB amount with 6 decimals
+      } else if (crypto.name === "USDT" || crypto.name === "BUSD") {
+        const totalUsd = numAmount * NAMO_PRICE_USD;
+        const tokenAmount = totalUsd / 1; // 1 USDT/BUSD = 1 USD
+        setAmountNamo(numAmount);
+        setPrice(tokenAmount.toFixed(6)); // USDT/BUSD amount with 6 decimals
+      }
+    } else {
+      setAmountNamo(0);
+      setPrice("0.000000");
+    }
+  };
+
+  // Restrict input to numbers only with decimal support
+  const handleInputChange = (e, setter) => {
+    const value = e.target.value;
+    // Allow only numbers and a single decimal point
+    if (/^\d*\.?\d*$/.test(value) || value === "") {
+      setter(value);
+      if (setter === setAmountNamo) getTotalPrice(value);
+    }
+  };
+
+  // Mint tokens based on selected cryptocurrency
+  const mintToken = async () => {
+    if (amountNamo <= 0) {
+      toast.error("Input correct amount", {
+        toastId: 'invalid-amount',
+      });
+      return;
+    }
+
+    if (!contract || !signer) {
+      toast.error("Please connect your wallet first.", {
+        toastId: 'wallet-not-connected',
+      });
+      return;
+    }
+
+    // Check if the network is supported
+    if (!chain || (chain.id !== 56 && chain.id !== 97)) {
+      toast.error("Please switch to BNB Mainnet or Testnet to mint tokens.", {
+        toastId: 'wrong-network-mint',
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const tokenAmount = ethers.utils.parseUnits(amountNamo.toString(), 18);
+
+      if (crypto.name === "BNB") {
+        const bnbAmount = ethers.utils.parseUnits(price.toString(), 18);
+        const tx = await contract.mintWithBNB({ value: bnbAmount });
+        await tx.wait();
+        toast.success(`Successfully minted ${amountNamo} NAMO with BNB!`, {
+          toastId: 'mint-success-bnb',
+        });
+      } else {
+        const tokenAddress = crypto.name === "USDT" ? await contract.usdtToken() : await contract.busdToken();
+        const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
+        const decimals = await tokenContract.decimals(); // 18 for both USDT and BUSD on BSC
+        const paymentAmount = ethers.utils.parseUnits(price.toString(), decimals); // Use price as token amount
+
+        // Approve token spending
+        const allowance = await tokenContract.allowance(await signer.getAddress(), NAMOCOIN_ADDRESS);
+        if (allowance.lt(paymentAmount)) {
+          const approveTx = await tokenContract.approve(NAMOCOIN_ADDRESS, paymentAmount);
+          await approveTx.wait();
+          toast.info(`Approved ${crypto.name} for spending.`, {
+            toastId: 'approve-success',
+          });
+        }
+
+        // Mint tokens
+        const mintFunction = crypto.name === "USDT" ? "mintWithUSDT" : "mintWithBUSD";
+        const tx = await contract[mintFunction](tokenAmount);
+        await tx.wait();
+        toast.success(`Successfully minted ${amountNamo} NAMO with ${crypto.name}!`, {
+          toastId: 'mint-success-token',
+        });
+      }
+    } catch (error) {
+      console.error("Minting failed:", error);
+      toast.error(`Minting failed: ${error.message}`, {
+        toastId: 'mint-failed',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const CryptoIcon = crypto.icon;
+
   return (
     <>
-    <div className=" bg-black text-white flex flex-wrap items-center justify-center pt-44 pb-48">
-   
-      <Card className="bg-zinc-900 text-white w-full max-w-md">
-        <CardContent className="p-6">
-          <h2 className="text-lg font-bold mb-4">Buy</h2>
-          <div className="bg-zinc-800 p-4 rounded-lg mb-6">
-            <div className="flex justify-between items-center mb-2">
-              <div className="flex gap-2 items-center">
-               <img src="./assets/logo.png" alt="BNB" className="w-6 h-6" />
-                <span>NAMO</span>
-              </div>
-              {/* <ChevronDown size={16} /> */}
-            </div>
-            <Input
-              className="bg-zinc-700 text-white"
-              value={amountNamo}
-              onChange={(e)=>getTotalPrice(e.target.value)}
-              // readOnly
-            />
-          </div>
-          <div className="flex justify-center my-2">
-            <Repeat className="text-zinc-400" />
-          </div>
-          <div className="bg-zinc-800 p-4 rounded-lg mb-4">
-            <div className="flex justify-between items-center mb-2" ref={dropdownRef}>
-              <div className="flex gap-2 items-center">
-                {/* <img src="./assets/logo.png" alt="BNB" className="w-6 h-6" /> */}
-                <SiBinance size={20} color="#F0B90B" />
-
-                <span>{crypto.name}</span>
-              </div>
-              <ChevronDown size={16} onClick={toggleDropdown} aria-expanded={isOpen} aria-haspopup="true"/>
-             
-            </div>
-             {isOpen && (
-                <div
-                  className="mt-2 rounded-md shadow-lg bg-gray-500 w-full mb-2"
-                  role="menu"
-                  aria-orientation="vertical"
-                  aria-labelledby="menu-button"
-                >
-                  <div className="py-1" role="none">
-                    <a
-                      href="#"
-                      className="text-gray-700 flex px-4 py-2 text-sm hover:bg-gray-400"
-                      role="menuitem"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      
-                      <SiBinance size={20} color="#F0B90B" />
-                      <span className="ml-2">BNB</span>
-                    </a>
-                    <a
-                      href="#"
-                      className="text-gray-700 flex px-4 py-2 text-sm hover:bg-gray-400"
-                      role="menuitem"
-                      onClick={() => setIsOpen(false)}
-                    >
-                        <SiTether size={20} color="#26A17B" />
-                        <span className="ml-2">USDT</span>
-                    </a>
-                    <a
-                      href="#"
-                      className="text-gray-700 flex px-4 py-2 text-sm hover:bg-gray-400"
-                      role="menuitem"
-                      onClick={() => setIsOpen(false)}
-                    >
-                     <SiEthereum size={20} color="#3C3C3D" />
-                      <span className="ml-2">USDT</span>
-                    </a>
-                  </div>
+      <div className="bg-black text-white flex flex-wrap items-center justify-center pt-44 pb-48">
+        <Card className="bg-zinc-900 text-white w-full max-w-md">
+          <CardContent className="p-6">
+            <h2 className="text-lg font-bold mb-4">Buy</h2>
+            <div className="bg-zinc-800 p-4 rounded-lg mb-6">
+              <div className="flex justify-between items-center mb-2">
+                <div className="flex gap-2 items-center">
+                  <img src="./assets/logo.png" alt="NAMO" className="w-6 h-6" />
+                  <span>NAMO</span>
                 </div>
-              )}
-            <Input
-              className="bg-zinc-700 text-white"
-              value={price}
-              onChange={(e) => setAmountBNB(e.target.value)}
-              disabled
-            />
-        
-          </div>
-      
-          { active ? (
-            <Button className="w-full bg-green-500 hover:bg-green-600 text-black" >
-              Buy
-            </Button>
-          ):(
-          <Button className="w-full bg-green-500 hover:bg-green-600 text-black" >
-            Connect Wallet
-          </Button>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-     <footer className="w-full text-center text-sm text-zinc-500 p-[1.5rem] border-t  border-zinc-800  bg-black">
-        {/* <p>Disclaimer: Mike Token project is not related to the Monsters movies. We simply admire the characters.</p> */}
+              </div>
+              <Input
+                className="bg-zinc-700 text-white"
+                value={amountNamo}
+                onChange={(e) => handleInputChange(e, setAmountNamo)}
+                placeholder="0.0"
+              />
+            </div>
+            <div className="flex justify-center my-2">
+              <Repeat className="text-zinc-400" />
+            </div>
+            <div className="bg-zinc-800 p-4 rounded-lg mb-4">
+              <div className="flex justify-between items-center mb-2">
+                <div className="flex gap-2 items-center w-72">
+                  <CryptoIcon
+                    size={20}
+                    color={
+                      crypto.name === "BNB"
+                        ? "#F0B90B"
+                        : crypto.name === "USDT"
+                        ? "#26A17B"
+                        : "#F0B90B" // BUSD
+                    }
+                  />
+                  <select
+                    value={crypto.name}
+                    onChange={handleCryptoSelect}
+                    className="bg-zinc-800 text-white border-none outline-none"
+                  >
+                    <option value="BNB">BNB</option>
+                    <option value="USDT">USDT</option>
+                    <option value="BUSD">BUSD</option>
+                  </select>
+                </div>
+              </div>
+              <Input
+                className="bg-zinc-700 text-white"
+                value={price}
+                onChange={(e) => handleInputChange(e, setAmountBNB)}
+                disabled
+                placeholder="0.00"
+              />
+            </div>
+            {active ? (
+              <Button
+                className="w-full bg-green-500 hover:bg-green-600 text-black"
+                onClick={mintToken}
+                disabled={loading}
+              >
+                {loading ? "Minting..." : "Buy"}
+              </Button>
+            ) : (
+              <Button
+                className="w-full bg-green-500 hover:bg-green-600 text-black"
+                onClick={connectWallet}
+              >
+                Connect Wallet
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+      <footer className="w-full text-center text-sm text-zinc-500 p-[1.5rem] border-t border-zinc-800 bg-black">
         <p className="mt-1">Copyright © 2025 NamoToken</p>
       </footer>
     </>
