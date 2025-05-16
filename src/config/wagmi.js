@@ -1,11 +1,10 @@
 import { http } from 'wagmi';
 import { mainnet, bsc, bscTestnet } from 'wagmi/chains';
 import { createConfig } from 'wagmi';
-import { injected } from 'wagmi/connectors';
+import { injected, walletConnect, coinbaseWallet } from 'wagmi/connectors';
+import { WALLET_CONNECT_PROJECT_ID, ALCHEMY_API_KEY } from './wallet';
 
-// Use your actual Alchemy API key
-const ALCHEMY_API_KEY = 'VvvXuTxKhe0crIcgxiUSc2Bvf9NcT4bT'; // Replace with your key
-
+// Replace with your actual Alchemy API key
 const bnbMainnet = {
   ...bsc,
   id: 56,
@@ -44,5 +43,10 @@ export const config = createConfig({
     [bnbMainnet.id]: http(),
     [bnbTestnet.id]: http(),
   },
-  connectors: [injected()], // Support for MetaMask
+  connectors: [
+    injected({ target: 'metaMask' }), // MetaMask
+    walletConnect({ projectId: WALLET_CONNECT_PROJECT_ID, showQrModal: false }), // WalletConnect
+    coinbaseWallet({ appName: 'NAMO Token' }), // Coinbase Wallet
+  ],
+  autoConnect: false,
 });
