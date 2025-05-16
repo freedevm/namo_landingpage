@@ -1,8 +1,11 @@
 import { http } from 'wagmi';
 import { mainnet, bsc, bscTestnet } from 'wagmi/chains';
 import { createConfig } from 'wagmi';
+import { injected } from 'wagmi/connectors';
 
-// Define custom BNB Mainnet and Testnet with Alchemy RPC URLs
+// Use your actual Alchemy API key
+const ALCHEMY_API_KEY = 'VvvXuTxKhe0crIcgxiUSc2Bvf9NcT4bT'; // Replace with your key
+
 const bnbMainnet = {
   ...bsc,
   id: 56,
@@ -14,7 +17,7 @@ const bnbMainnet = {
   },
   rpcUrls: {
     default: {
-      http: ['https://bnb-mainnet.g.alchemy.com/v2/VvvXuTxKhe0crIcgxiUSc2Bvf9NcT4bT'],
+      http: [`https://bnb-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`],
     },
   },
 };
@@ -30,16 +33,16 @@ const bnbTestnet = {
   },
   rpcUrls: {
     default: {
-      http: ['https://bnb-testnet.g.alchemy.com/v2/VvvXuTxKhe0crIcgxiUSc2Bvf9NcT4bT'],
+      http: [`https://bnb-testnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`],
     },
   },
 };
 
-// Configure wagmi with the custom chains
 export const config = createConfig({
   chains: [bnbMainnet, bnbTestnet],
   transports: {
     [bnbMainnet.id]: http(),
     [bnbTestnet.id]: http(),
   },
+  connectors: [injected()], // Support for MetaMask
 });

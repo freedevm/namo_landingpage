@@ -1,37 +1,20 @@
-import { useState, useEffect } from "react";
-import { Button } from "../components/ui/button";
-import { Card, CardContent } from "../components/ui/card";
-import { Input } from "../components/ui/input";
-import { Repeat } from "lucide-react";
-import { SiBinance, SiTether } from "react-icons/si";
-import * as ethers from "ethers";
+import { useState, useEffect } from 'react';
+import { Button } from '../components/ui/button';
+import { Card, CardContent } from '../components/ui/card';
+import { Input } from '../components/ui/input';
+import { Repeat } from 'lucide-react';
+import { SiBinance, SiTether } from 'react-icons/si';
+import * as ethers from 'ethers';
 import { useAccount } from 'wagmi';
 import { toast } from 'react-toastify';
+import { useContract } from '../context/ContractContext';
+import { NAMOCOIN_ADDRESS, NAMOCOIN_ABI } from '../config/contract';
 
-// NAMOCoin ABI (simplified for relevant functions)
-const NAMOCOIN_ABI = [
-  "function mintWithBNB() external payable nonReentrant",
-  "function mintWithUSDT(uint256 tokenAmount) external nonReentrant",
-  "function mintWithBUSD(uint256 tokenAmount) external nonReentrant",
-  "function tokenPrice() external view returns (uint256)",
-  "function usdtToken() external view returns (address)",
-  "function busdToken() external view returns (address)",
-  "function balanceOf(address account) external view returns (uint256)",
-  "event TokensMinted(address indexed buyer, uint256 amount, address paymentToken, uint256 paymentAmount)",
-];
-
-// ERC20 ABI for approve function
 const ERC20_ABI = [
   "function approve(address spender, uint256 amount) external returns (bool)",
   "function allowance(address owner, address spender) external view returns (uint256)",
   "function decimals() external view returns (uint8)",
 ];
-
-// Contract address on BSC Testnet
-const NAMOCOIN_ADDRESS = "0xEf319A5c5D7D35467B4EA972998930f5D3b04F24";
-
-// NAMO price in USD
-const NAMO_PRICE_USD = 0.0012;
 
 export default function BuyNAMO({ active: initialActive }) {
   const [amountBNB, setAmountBNB] = useState(0);
@@ -45,10 +28,10 @@ export default function BuyNAMO({ active: initialActive }) {
   const [loading, setLoading] = useState(false);
   const [signer, setSigner] = useState(null);
   const [contract, setContract] = useState(null);
-  const [tokenPrice, setTokenPrice] = useState(0);
   const [bnbUsdPrice, setBnbUsdPrice] = useState(null); // Store BNB/USD price
 
-  const { chain } = useAccount();
+  const { chain, isConnected } = useAccount();
+  const { tokenPrice, isLoading: priceLoading, isError: priceError } = useContract();
 
   // Fetch BNB/USD price from CoinGecko API
   useEffect(() => {
@@ -64,7 +47,7 @@ export default function BuyNAMO({ active: initialActive }) {
         toast.error("Failed to fetch BNB price. Using default value.", {
           toastId: 'bnb-price-fetch-failed',
         });
-        setBnbUsdPrice(600); // Default BNB/USD price if API fails (adjust as needed)
+        setBnbUsdPrice(600); // Default BNB/USD price if API fails
       }
     };
 
@@ -83,14 +66,11 @@ export default function BuyNAMO({ active: initialActive }) {
           const contract = new ethers.Contract(NAMOCOIN_ADDRESS, NAMOCOIN_ABI, signer);
           setSigner(signer);
           setContract(contract);
-          setActive(true); // Set active if wallet is connected
           
-          // Fetch token price
-          const price = await contract.tokenPrice();
-          setTokenPrice(price);
+          // setActive(true); // Set active if wallet is connected
         } catch (error) {
           console.error("Failed to initialize:", error);
-          setActive(false);
+          // setActive(false);
         }
       } else {
         console.warn("MetaMask not detected.");
@@ -110,10 +90,6 @@ export default function BuyNAMO({ active: initialActive }) {
         setSigner(signer);
         setContract(contract);
         setActive(true);
-
-        // Fetch token price on connect
-        const price = await contract.tokenPrice();
-        setTokenPrice(price);
       } catch (error) {
         console.error("Wallet connection failed:", error);
         toast.error("Failed to connect wallet: " + error.message, {
@@ -136,20 +112,21 @@ export default function BuyNAMO({ active: initialActive }) {
       BUSD: SiBinance,
     };
     setCrypto({ name: selected, icon: iconMap[selected] });
-    // No need to recalculate price here; it will update with amountNamo change
   };
 
   // Calculate total price based on NAMO amount and selected cryptocurrency
   const getTotalPrice = (tokenAmount) => {
     const numAmount = parseFloat(tokenAmount) || 0;
+    const namoPrice = priceLoading || priceError ? 0.0012 : parseFloat(tokenPrice); // Fallback to 0.0012 if price isn't available
+
     if (numAmount > 0) {
       if (crypto.name === "BNB" && bnbUsdPrice) {
-        const totalUsd = numAmount * NAMO_PRICE_USD;
+        const totalUsd = numAmount * namoPrice;
         const bnbAmount = totalUsd / bnbUsdPrice;
         setAmountNamo(numAmount);
         setPrice(bnbAmount.toFixed(6)); // BNB amount with 6 decimals
       } else if (crypto.name === "USDT" || crypto.name === "BUSD") {
-        const totalUsd = numAmount * NAMO_PRICE_USD;
+        const totalUsd = numAmount * namoPrice;
         const tokenAmount = totalUsd / 1; // 1 USDT/BUSD = 1 USD
         setAmountNamo(numAmount);
         setPrice(tokenAmount.toFixed(6)); // USDT/BUSD amount with 6 decimals

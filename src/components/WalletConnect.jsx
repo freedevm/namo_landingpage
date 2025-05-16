@@ -20,9 +20,10 @@ const WalletConnect = ({ active, setActive }) => {
 
   // Update active state and handle network switching
   useEffect(() => {
-    setActive(isConnected);
-
+    
     if (isConnected && chain) {
+      setActive(isConnected);
+      
       if (chain.id !== 56 && chain.id !== 97) {
         // Unsupported network
         toast.error(`Unsupported network (${chain.name}). Please switch to BNB Mainnet or Testnet.`, {
