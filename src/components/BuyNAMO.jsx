@@ -5,7 +5,8 @@ import { Input } from '../components/ui/input';
 import { Repeat } from 'lucide-react';
 import { SiBinance, SiTether } from 'react-icons/si';
 import * as ethers from 'ethers';
-import { useAccount } from 'wagmi';
+import { useAccount, useConnect } from 'wagmi';
+import { injected } from 'wagmi/connectors';
 import { toast } from 'react-toastify';
 import { useContract } from '../context/ContractContext';
 import { NAMOCOIN_ADDRESS, NAMOCOIN_ABI } from '../config/contract';
@@ -16,7 +17,7 @@ const ERC20_ABI = [
   "function decimals() external view returns (uint8)",
 ];
 
-export default function BuyNAMO({ active: initialActive }) {
+export default function BuyNAMO() {
   const [amountBNB, setAmountBNB] = useState(0);
   const [amountNamo, setAmountNamo] = useState(0);
   const [crypto, setCrypto] = useState({
@@ -24,13 +25,13 @@ export default function BuyNAMO({ active: initialActive }) {
     icon: SiBinance,
   });
   const [price, setPrice] = useState(0);
-  const [active, setActive] = useState(initialActive);
   const [loading, setLoading] = useState(false);
   const [signer, setSigner] = useState(null);
   const [contract, setContract] = useState(null);
   const [bnbUsdPrice, setBnbUsdPrice] = useState(null); // Store BNB/USD price
 
   const { chain, isConnected } = useAccount();
+  const { connect, error: connectError } = useConnect();
   const { tokenPrice, isLoading: priceLoading, isError: priceError } = useContract();
 
   // Fetch BNB/USD price from CoinGecko API
@@ -56,49 +57,51 @@ export default function BuyNAMO({ active: initialActive }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Initialize provider and contract on mount
+  // Handle connection errors
+  useEffect(() => {
+    if (connectError) {
+      console.error('Connection error in BuyNAMO:', connectError);
+      toast.error('Failed to connect wallet: ' + connectError.message, {
+        toastId: 'connect-error-buy',
+      });
+    }
+  }, [connectError]);
+
+  // Initialize provider and contract when wallet is connected
   useEffect(() => {
     const init = async () => {
-      if (window.ethereum) {
+      if (isConnected && window.ethereum) {
         try {
           const provider = new ethers.providers.Web3Provider(window.ethereum);
           const signer = provider.getSigner();
           const contract = new ethers.Contract(NAMOCOIN_ADDRESS, NAMOCOIN_ABI, signer);
           setSigner(signer);
           setContract(contract);
-          
-          // setActive(true); // Set active if wallet is connected
         } catch (error) {
           console.error("Failed to initialize:", error);
-          // setActive(false);
+          toast.error("Failed to initialize contract: " + error.message, {
+            toastId: 'init-error',
+          });
         }
-      } else {
-        console.warn("MetaMask not detected.");
       }
     };
     init();
-  }, []);
+  }, [isConnected]);
 
   // Handle wallet connection
-  const connectWallet = async () => {
-    if (window.ethereum) {
-      try {
-        await window.ethereum.request({ method: "eth_requestAccounts" });
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
-        const contract = new ethers.Contract(NAMOCOIN_ADDRESS, NAMOCOIN_ABI, signer);
-        setSigner(signer);
-        setContract(contract);
-        setActive(true);
-      } catch (error) {
-        console.error("Wallet connection failed:", error);
-        toast.error("Failed to connect wallet: " + error.message, {
-          toastId: 'connect-error-buy',
-        });
-      }
-    } else {
-      toast.error("Please install MetaMask to use this DApp.", {
-        toastId: 'no-metamask-buy',
+  const connectWallet = () => {
+    if (!window.ethereum) {
+      toast.error('Please install MetaMask!', {
+        toastId: 'no-metamask',
+      });
+      return;
+    }
+    try {
+      connect({ connector: injected() });
+    } catch (err) {
+      console.error('Connection failed:', err);
+      toast.error('Connection failed: ' + err.message, {
+        toastId: 'connect-failed',
       });
     }
   };
@@ -117,7 +120,7 @@ export default function BuyNAMO({ active: initialActive }) {
   // Calculate total price based on NAMO amount and selected cryptocurrency
   const getTotalPrice = (tokenAmount) => {
     const numAmount = parseFloat(tokenAmount) || 0;
-    const namoPrice = priceLoading || priceError ? 0.0012 : parseFloat(tokenPrice); // Fallback to 0.0012 if price isn't available
+    const namoPrice = priceLoading || priceError ? 0.0012 : parseFloat(tokenPrice);
 
     if (numAmount > 0) {
       if (crypto.name === "BNB" && bnbUsdPrice) {
@@ -273,7 +276,7 @@ export default function BuyNAMO({ active: initialActive }) {
                 placeholder="0.00"
               />
             </div>
-            {active ? (
+            {isConnected ? (
               <Button
                 className="w-full bg-green-500 hover:bg-green-600 text-black"
                 onClick={mintToken}

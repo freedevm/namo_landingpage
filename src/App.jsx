@@ -13,18 +13,16 @@ import 'react-toastify/dist/ReactToastify.css';
 const queryClient = new QueryClient();
 
 function App() {
-  const [active, setActive] = useState(false);
-
   return (
     <div>
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <ContractProvider>
             <Router>
-              <Navbar setActive={setActive} active={active} />
+              <Navbar />
               <Routes>
                 <Route path="/" element={<HomePage />} />
-                <Route path="/buy" element={<BuyNAMO active={active} />} />             
+                <Route path="/buy" element={<BuyNAMO />} />             
               </Routes>
             </Router>
             <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} />

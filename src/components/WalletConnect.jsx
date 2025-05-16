@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 // Preferred network based on environment (Testnet for development, Mainnet for production)
 const PREFERRED_CHAIN_ID = process.env.NODE_ENV === 'production' ? 56 : 97; // 56 for Mainnet, 97 for Testnet
 
-const WalletConnect = ({ active, setActive }) => {
+const WalletConnect = () => {
   const { address, isConnected, chain } = useAccount();
   const { connect, error } = useConnect();
   const { disconnect } = useDisconnect();
@@ -18,12 +18,9 @@ const WalletConnect = ({ active, setActive }) => {
     enabled: !!address,
   });
 
-  // Update active state and handle network switching
+  // Handle network switching
   useEffect(() => {
-    
     if (isConnected && chain) {
-      setActive(isConnected);
-      
       if (chain.id !== 56 && chain.id !== 97) {
         // Unsupported network
         toast.error(`Unsupported network (${chain.name}). Please switch to BNB Mainnet or Testnet.`, {
@@ -44,7 +41,7 @@ const WalletConnect = ({ active, setActive }) => {
         }
       }
     }
-  }, [isConnected, chain, setActive, switchChain]);
+  }, [isConnected, chain, switchChain]);
 
   // Handle connection errors
   useEffect(() => {
