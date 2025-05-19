@@ -14,7 +14,7 @@ const queryClient = new QueryClient();
 
 function App() {
   return (
-    <div>
+    <div className='bg-gradient-to-b from-[#FF9933] via-[#FFFFFF] to-[#76e76c] min-h-screen m-0'>
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <ContractProvider>

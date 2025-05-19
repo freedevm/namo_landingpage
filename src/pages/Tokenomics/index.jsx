@@ -2,13 +2,13 @@ import React, { useMemo } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 
 const listTokenomics = [
-  { title: "Public Sale & DEX Liquidity", value: 25, bg: "bg-green-500" },
-  { title: "Liquidity Pool (time-locked)", value: 15, bg: "bg-blue-500" },
-  { title: "Creators & Core Team", value: 20, bg: "bg-purple-500" },
-  { title: "DeshChain Development Fund", value: 15, bg: "bg-yellow-500" },
-  { title: "NFT, Staking & Community Rewards", value: 10, bg: "bg-purple-700" },
-  { title: "DAO Governance Treasury", value: '05', bg: "bg-yellow-700" },
-  { title: "Initial Burn", value: 10, bg: "bg-purple-700" },
+  { title: "Public Sale & DEX Liquidity", value: 25, bg: "bg-green-500" },    // Green
+  { title: "Liquidity Pool (time-locked)", value: 15, bg: "bg-blue-500" },    // Blue
+  { title: "Creators & Core Team", value: 20, bg: "bg-purple-500" },          // Purple
+  { title: "DeshChain Development Fund", value: 15, bg: "bg-yellow-500" },    // Yellow
+  { title: "NFT, Staking & Community Rewards", value: 10, bg: "bg-red-500" }, // Red (replacing duplicate bg-purple-700)
+  { title: "DAO Governance Treasury", value: '05', bg: "bg-teal-500" },      // Teal (replacing bg-yellow-700 for better contrast)
+  { title: "Initial Burn", value: 10, bg: "bg-orange-500" },                 // Orange (replacing duplicate bg-purple-700)
 ];
 
 const Tokenomics = () => {
@@ -22,7 +22,15 @@ const Tokenomics = () => {
     { name: "Initial Burn", quantity: 10, color: "#7e22ce" },
   ];
 
-  const COLORS = ["#22c55e", "#3b82f6", "#a855f7", "#eab308","#7e22ce", "#a16207", "#7e22ce"];
+  const COLORS = [
+    "#22c55e",  // bg-green-500
+    "#3b82f6",  // bg-blue-500
+    "#a855f7",  // bg-purple-500
+    "#eab308",  // bg-yellow-500
+    "#ef4444",  // bg-red-500
+    "#14b8a6",  // bg-teal-500
+    "#f97316",  // bg-orange-500
+  ];
 
   // Responsive sizes based on viewport width
   const sizeChart = useMemo(() => {

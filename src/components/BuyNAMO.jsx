@@ -197,7 +197,7 @@ export default function BuyNAMO() {
 
   return (
     <>
-      <div className="bg-black text-white flex flex-wrap items-center justify-center pt-44 pb-48">
+      <div className="bg-black text-white flex flex-wrap items-center justify-center pt-44 pb-48 bg-gradient-to-b from-[#FF9933] via-[#FFFFFF] to-[#76e76c] min-h-screen m-0">
         <Card className="bg-zinc-900 text-white w-full max-w-md">
           <CardContent className="p-6">
             <h2 className="text-lg font-bold mb-4">Buy</h2>
@@ -270,10 +270,10 @@ export default function BuyNAMO() {
             )}
           </CardContent>
         </Card>
+        <footer className="w-full text-center text-sm text-zinc-500 p-[1.5rem] bg-transparent">
+          <p className="mt-1">Copyright © 2025 NamoToken</p>
+        </footer>
       </div>
-      <footer className="w-full text-center text-sm text-zinc-500 p-[1.5rem] border-t border-zinc-800 bg-black">
-        <p className="mt-1">Copyright © 2025 NamoToken</p>
-      </footer>
       <CustomModal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} />
     </>
   );

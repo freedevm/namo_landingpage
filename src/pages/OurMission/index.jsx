@@ -52,7 +52,7 @@ const OurMission = () => {
           {listOurMission.map((e, idx) => (
             <div
               key={`list-item-our-mission-${idx}`}
-              className="border border-[#3B4060] rounded-lg bg-gradient-to-r from-red-900 via-red-600 to-orange-700 text-gray-50 hover:border-brand hover:bg-gradient-to-r hover:via-transparent  mb-8 p-4"
+              className="border border-[#3B4060] rounded-lg bg-gradient-to-r from-red-900 via-red-600 to-orange-700 text-gray-50 hover:border-brand hover:bg-gradient-to-r hover:to-gray-700  mb-8 p-4"
             >
               <div className="py-6 px-4 flex flex-col w-full">
                 <h3 className="mb-4 text-xl font-semibold text-primary">

@@ -13,7 +13,7 @@ const HomePage = () => {
    <div className="relative">
   {/* Background image */}
   <div
-    className="absolute inset-0 bg-cover bg-no-repeat bg-center z-0 bg-gradient-to-b from-[#FF9933] via-[#FFFFFF] to-[#76e76c] min-h-screen m-0"
+    className="absolute inset-0 bg-cover bg-no-repeat bg-center z-0"
     
   />
   {/* Overlay */}
@@ -26,7 +26,7 @@ const HomePage = () => {
     <OurMission />
     <Tokenomics />
     <Roadmap />
-    <footer className="w-full text-center text-sm text-zinc-300 p-4 border-t mt-3 border-zinc-800 bg-black bg-opacity-70">
+    <footer className="w-full text-center text-sm text-gray-800 p-4 border-t border-gray-900 mt-3 bg-transparent">
       <p className="mt-1">Copyright © 2025 NamoToken</p>
     </footer>
   </div>
