@@ -164,7 +164,7 @@ const Roadmap = () => {
           return (
             <div
               key={index}
-              className="w-full min-w-[25%] border border-gray-600 rounded-lg p-[1px] bg-gradient-to-br from-gray-800 to-transparent"
+              className="w-full min-w-[25%] border border-gray-600 rounded-lg p-[1px] bg-gradient-to-br from-gray-800 to-transparent flex"
             >
               <div className="bg-gray-900 w-full rounded-lg p-6">
                 <h3
