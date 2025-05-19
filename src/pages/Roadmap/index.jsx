@@ -133,10 +133,10 @@ const Roadmap = () => {
           <span className="text-blue-500 text-sm uppercase tracking-widest font-normal mb-2 block">
             [ROADMAP]
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-200 mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-600 mb-6">
             Innovation Unleashed. Future Driven.
           </h2>
-          <p className="text-gray-200 text-base leading-relaxed">
+          <p className="text-gray-500 text-base leading-relaxed">
             Embark on an exciting roadmap with Namo Token: Innovations and
             milestones shaping our future.
           </p>
