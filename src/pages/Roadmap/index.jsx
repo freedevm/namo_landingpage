@@ -6,62 +6,105 @@ const Roadmap = () => {
   const roadmap = [
     {
       name: "q1",
-      precious: "Q3, 2025",
-      quarter: 3,
-      year: 2023,
-      endTime: "2023-09-30",
-      contentOne: "Decentralized Finance (DeFi)",
+      precious: "Q2, 2025",
+      quarter: 4,
+      year: 2025,
+      endTime: "2025-05",
+      contentOne: "Launch Presale on PinkSale/DxSale",
       contentTwo:
-        "Staking: Launch of staking platform. An MMT rewarding pool where users can stake their Namo tokens and harvest more MMT. Introduce of a unique USDT rewarding pool where users can stake their MMT and harvest USDT. Note: The reward of this pool will be provided by CoinAI Trading Protocol.",
+        "PancakeSwap TGE & lock LP (12+ months).",
       contentThree:
-        "Farms: Launch of Namo Token's farming platform, allowing users to stake their tokens and earn rewards. Introduce of initial farming pools with attractive APYs to incentivize participation. Conduct thorough audits and security checks to ensure the safety of users' funds.",
+        "Finalize NAMO dashboard (burn, reflection, holders)",
+      contentFourth:
+        "Submit to CoinMarketCap & CoinGecko",
     },
     {
       name: "q2",
-      precious: "Q4, 2025",
-      quarter: 4,
-      year: 2023,
+      precious: "Q3, 2025",
+      quarter: 3,
+      year: 2025,
       endTime: "2023-12-31",
       contentOne:
-        "Expanding Farming Horizons: Expanding the selection of farming pools, if necessary introducing new pairs and innovative staking options.",
+        "Publish Certik/SolidProof audit• Launch 90-day staking program",
       contentTwo:
-        "Engaging in strategic partnerships to bring exclusive farming opportunities to the Namo Token community.",
+        " Start 3% fee-funded Voter Awareness Campaign (5 districts)",
       contentThree:
-        "NFT: Launch of the Namo Token special edition NFTs and based on the team’s decision possibly an NFT Marketplace, providing a platform for creators to mint and sell unique digital NFTs and assets.",
-      contentFourth:
-        "Collaboration with talented artists to curate a diverse collection of Namo-themed NFTs. Implementing a user-friendly interface for seamless buying, selling, and trading of NFTs.",
-      contentFifth:
-        "Artistic Expressions: Organizing NFT drops and collaborations with prominent artists, celebrities, and brands to expand the range of collectibles.",
-      contentSixth:
-        "Engaging and collaborating with OpenSea for the marketplace functionality with advanced search and discovery features, enabling users to find their desired NFTs and to make seamless NFT transactions.",
-      contentSeventh:
-        "Introducing Passive Income elements to the Namo NFTs, offering interactive experiences and rewards tied to the Namo special NFTs.",
+        "First 10% scheduled burn event"
     },
     {
       name: "q3",
-      precious: "Q1, 2024",
-      quarter: 1,
-      year: 2024,
+      precious: "Q4, 2025",
+      quarter: 4,
+      year: 2025,
       endTime: "2024-03-31",
       contentOne:
-        "Advance Artificial Intelligence Powered Trade Protocols (CoinAI): Collaborating with CoinAI.app and introducing the CoinAI Pools, empowering users to earn USDT by staking USDT in a high yield pool.",
+        "Secure Tier-2 CEX listings (e.g., MEXC, Gate.io)",
       contentTwo:
-        "Collaboration with AI experts, blockchain developers and data scientists not only to develop and improve trading and arbitrage protocols but also to build captivating and informative AI visualizations for crypto industry.",
+        "Open Gram Panchayat funding portal.",
       contentThree:
-        "Providing educational resources and tutorials to help users understand the practical applications of AI in various fields of crypto technology.",
+        "Host AMAs, meme contests, and YouTube influencer push.",
+      contentFourth:
+        "Host AMAs, meme contests, and YouTube influencer push.",
     },
     {
       name: "q4",
-      precious: "Q2, 2025",
+      precious: "Q1, 2026",
       quarter: 2,
       year: 2024,
       endTime: "2024-06-30",
       contentOne:
-        "DeFi Innovations: Further expansion of the range of farming pools, incorporating new tokens and innovative staking mechanisms.",
+        "Secure Tier-2 CEX listings (e.g., MEXC, Gate.io).",
       contentTwo:
-        "Implementing cross-chain compatibility, allowing users to farm and stake their Namo Tokens on multiple blockchain networks. Introduction of AI yield optimization strategies and automated farming tools, such as bots and apps to enhance user returns.",
+        "Enable community voting on village projects.",
       contentThree:
-        "Governance Platform: In our continual quest to create a more interactive and user-driven network, our next major step will be launching the Governance Platform. This will be a comprehensive, blockchain-based system that allows for transparent decision-making across our network. Stakeholders will be able to participate directly in the decision-making process, helping to shape the future of our organization. Through this platform, each voice will be heard, and every idea will be valued, fostering a true sense of collective ownership and accountability. By integrating state-of-the-art voting and discussion features, our Governance Platform will empower our community like never before to drive innovation, co-create, and directionally steer the path forward.",
+        "Expand Voter Awareness Campaign to 15+ districts.",
+      contentFourth:
+        "Launch MODI DAO Info Hub.",
+    },
+    {
+      name: "q5",
+      precious: "Q2, 2026",
+      quarter: 4,
+      year: 2024,
+      endTime: "2024-06-30",
+      contentOne:
+        "Begin DAO voting on burn %, treasury use, and fee changes.",
+      contentTwo:
+        "Launch open-source governance tracker.",
+      contentThree:
+        "MODI branded merchandise pilo.",
+      contentFourth:
+        "Release Dashboard v2 with Telegram Bot.",
+    },
+    {
+      name: "q6",
+      precious: "Q3, 2026",
+      quarter: 2,
+      year: 2024,
+      endTime: "2024-06-30",
+      contentOne:
+        "Secure Tier-1 CEX listing (KuCoin/OKX).",
+      contentTwo:
+        "Collaborate with Bollywood & YouTube personalities.",
+      contentThree:
+        "Fund 10+ rural Gram Panchayat projects.",
+      contentFourth:
+        "Launch MODI Impact Report Portal.",
+    },
+    {
+      name: "q7",
+      precious: "Q4, 2026",
+      quarter: 2,
+      year: 2024,
+      endTime: "2024-06-30",
+      contentOne:
+        "Launch MODI Prepaid Card Pilot.",
+      contentTwo:
+        "Release Gram Panchayat Leaderboard.",
+      contentThree:
+        "Publish audited treasury & social impact report.",
+      contentFourth:
+        "Pre-announce MODI Chain (2027 Vision).",
     },
   ];
 

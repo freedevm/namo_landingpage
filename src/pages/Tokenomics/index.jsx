@@ -7,7 +7,7 @@ const listTokenomics = [
   { title: "Creators & Core Team", value: 20, bg: "bg-purple-500" },
   { title: "DeshChain Development Fund", value: 15, bg: "bg-yellow-500" },
   { title: "NFT, Staking & Community Rewards", value: 10, bg: "bg-purple-700" },
-  { title: "DAO Governance Treasury", value: 5, bg: "bg-yellow-700" },
+  { title: "DAO Governance Treasury", value: '05', bg: "bg-yellow-700" },
   { title: "Initial Burn", value: 10, bg: "bg-purple-700" },
 ];
 
