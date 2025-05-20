@@ -120,14 +120,7 @@ const Roadmap = () => {
         "Deploy Bharat ID (D-BID): Decentralized identity linked with optional Aadhaar validation.",
       contentThree:
         "Desh Wallet v3 Release: Cross-chain wallet + UPI auto-conversion support, Real-time village-level voting & donation dashboard.",
-      contentFourth:
-        "Gram Sainik NFTs for verified social contributor.",
-      contentFifth:
-        "Mainnet Go-Live of Desh Chain (green, scalable, modular PoS)",
-      contentSixth:
-        "BharatVerse Alpha Release",
-      contentSeventh:
-        "International Desh Chapters (DAOs)"
+
     },
   ];
 
