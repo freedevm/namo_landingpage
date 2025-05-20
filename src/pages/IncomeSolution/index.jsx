@@ -12,6 +12,10 @@ const IncomeSolution = () => {
     navigate('/buy');
   };
 
+  const handleLinkLearnMore = () => {
+    window.open('/assets/NAMO_white_paper.pdf', '_blank');
+  }
+
   return (
     <div className="w-full max-w-[1200px] mx-auto flex justify-between mt-12 p-9 xs:flex-col sm:flex-col lg:flex-row relative z-[1] mb-28">
       {/* Decorative Images */}
@@ -65,7 +69,7 @@ const IncomeSolution = () => {
           </button>
           <button
             className="border-[1.5px] border-gray-600 bg-gray-800 text-gray-200 w-[47%] h-12 rounded-md hover:bg-gray-700 transition"
-            // onClick={handleLinkLearnMore}
+            onClick={handleLinkLearnMore}
           >
             Learn more
           </button>
