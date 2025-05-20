@@ -25,10 +25,12 @@ const Roadmap = () => {
       year: 2025,
       endTime: "2023-12-31",
       contentOne:
-        "Publish Certik/SolidProof audit• Launch 90-day staking program",
+        "Publish Certik/SolidProof audit",
       contentTwo:
-        " Start 3% fee-funded Voter Awareness Campaign (5 districts)",
+        "Launch 90-day staking program",
       contentThree:
+        " Start 3% fee-funded Voter Awareness Campaign (5 districts)",
+      contentFourth:
         "First 10% scheduled burn event"
     },
     {
@@ -105,6 +107,27 @@ const Roadmap = () => {
         "Publish audited treasury & social impact report.",
       contentFourth:
         "Pre-announce MODI Chain (2027 Vision).",
+    },
+    {
+      name: "q8",
+      precious: "Q1, 2027",
+      quarter: 7,
+      year: 2024,
+      endTime: "2024-06-30",
+      contentOne:
+        "Bharat DAO Labs opens with grants for developers building.",
+      contentTwo:
+        "Deploy Bharat ID (D-BID): Decentralized identity linked with optional Aadhaar validation.",
+      contentThree:
+        "Desh Wallet v3 Release: Cross-chain wallet + UPI auto-conversion support, Real-time village-level voting & donation dashboard.",
+      contentFourth:
+        "Gram Sainik NFTs for verified social contributor.",
+      contentFifth:
+        "Mainnet Go-Live of Desh Chain (green, scalable, modular PoS)",
+      contentSixth:
+        "BharatVerse Alpha Release",
+      contentSeventh:
+        "International Desh Chapters (DAOs)"
     },
   ];
 
