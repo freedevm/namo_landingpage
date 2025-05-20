@@ -80,7 +80,7 @@ const IncomeSolution = () => {
           className="absolute w-full h-full -top-[200px] z-[1]"
         /> */}
         <img
-          src="./assets/income-solution.webp"
+          src="./assets/income-solution.png"
           alt="income-solution-new"
           className="w-full h-full"
         />

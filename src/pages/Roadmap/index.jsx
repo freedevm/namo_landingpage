@@ -166,7 +166,7 @@ const Roadmap = () => {
         </div>
         <div className="w-full lg:w-5/12 mt-6 lg:mt-0 flex justify-start lg:justify-end">
           <img
-            src="./assets/ImageRoadmap.svg"
+            src="./assets/ImageRoadmap.png"
             alt="Roadmap"
             className="w-[475px] h-[316px] object-contain"
             // onError={(e) => (e.target.src = "https://via.placeholder.com/475x316")}

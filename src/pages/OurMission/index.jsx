@@ -41,7 +41,7 @@ const OurMission = () => {
             for individuals from all walks of life.
           </p>
           <img
-            src="./assets/our-mission.svg"
+            src="./assets/our-mission.png"
             alt="Our Mission"
             className="w-auto sm:w-[350px] lg:w-[450px] mx-auto mt-16"
           />
